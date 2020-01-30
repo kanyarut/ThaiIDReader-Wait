@@ -147,14 +147,8 @@ class ThaiIDReader {
 
     readerExit(empty){
         if(this.reader) {
-            try {
-                this.reader.disconnect(()=>{
-                    this.reader.close();
-                    this.pcscExit();
-                });
-            } catch {
-
-            }
+            this.reader.close();
+            this.pcscExit();
         }
     }
 
