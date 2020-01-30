@@ -68,14 +68,18 @@ class ThaiIDReader {
         if(this.protocol) {
             return this.readData( false );
         } else {
-            this.reader.connect((err, protocol) => {
-                if (err) {
-                    this.errorcb(err)
-                    //return this.readerExit();
-                }
-                this.protocol = protocol;
-                return this.readData( true );
-            })
+            try {
+                this.reader.connect((err, protocol) => {
+                    if (err) {
+                        this.errorcb(err)
+                        //return this.readerExit();
+                    }
+                    this.protocol = protocol;
+                    return this.readData( true );
+                })
+            } catch {
+
+            }
         }
     }
 
