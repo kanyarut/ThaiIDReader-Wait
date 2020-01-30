@@ -71,7 +71,7 @@ class ThaiIDReader {
             this.reader.connect((err, protocol) => {
                 if (err) {
                     this.errorcb(err)
-                    return this.readerExit();
+                    //return this.readerExit();
                 }
                 this.protocol = protocol;
                 return this.readData( true );
