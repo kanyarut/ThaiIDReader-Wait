@@ -49,6 +49,7 @@ class ThaiIDReader {
     onReader(reader){
         this.reader = reader;
         this.reader.on('status', (status) => {
+            //console.log(status)
             var changes = this.reader.state ^ status.state;
             if (changes) {
                 if ((changes & this.reader.SCARD_STATE_EMPTY) && (status.state & this.reader.SCARD_STATE_EMPTY)) {
@@ -56,8 +57,12 @@ class ThaiIDReader {
                     //this.readerExit(true);
                 } else if ((changes & this.reader.SCARD_STATE_PRESENT) && (status.state & this.reader.SCARD_STATE_PRESENT)) {
                     // detect corrupt card and change select apdu
+                    console.log("Card inserted")
                     if (status.atr[0] == 0x3B && status.atr[1] == 0x67) { _SELECT = _SELECT2;}
-                    this.onCardInsert();
+                    setTimeout(()=>{
+                        this.onCardInsert();
+                    },300);
+                    
                 }
             }
         });
@@ -65,26 +70,21 @@ class ThaiIDReader {
 
     onCardInsert() {
         console.log("onCardInsert")
-        if(this.protocol) {
-            return this.readData( false );
-        } else {
-            try {
-                this.reader.connect((err, protocol) => {
-                    if (err) {
-                        this.errorcb(err)
-                        //return this.readerExit();
-                    }
-                    this.protocol = protocol;
-                    return this.readData( true );
-                })
-            } catch {
-
+        this.reader.connect((err, protocol) => {
+            if (err) {
+                setTimeout(()=>{
+                    this.onCardInsert();
+                },1000);
+            } else {
+                this.protocol = protocol;
+                return this.readData( true );
             }
-        }
+        })
     }
 
      async readData ( init ) {
         let result = {};
+        console.log("readData");
         try {
             if(init)await this.sendCommand(_INIT_SELECT);
             result.cid = await this.sendCommand(_CID, true);
@@ -100,6 +100,7 @@ class ThaiIDReader {
     }
 
     async sendCommand (command, select) {
+        //console.log("sendCommand");
         let data = null
         let commands = [command]
         if (select) commands.push( _SELECT.concat(command.slice(-1)) )
@@ -150,7 +151,7 @@ class ThaiIDReader {
         if(this.reader) {
             try {
                 this.reader.disconnect(()=>{
-                    if(!empty)this.reader.close();
+                    this.reader.close();
                     this.pcscExit();
                 });
             } catch {
