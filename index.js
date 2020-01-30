@@ -38,7 +38,9 @@ class ThaiIDReader {
         this.errorcb = errorcb;
         this.pcsc = pcsclite()
 
-        let openTimeout = setTimeout(()=>{ this.onPcscError("No Reader Found"); },3000);
+        let openTimeout = setTimeout(()=>{ 
+            this.onPcscError("No Reader Found"); 
+        },10000);
         
         this.pcsc.on('reader', (reader)=>{ clearTimeout(openTimeout); this.onReader(reader); })
         this.pcsc.on('error', (err)=>{clearTimeout(openTimeout); this.onPcscError(err)})
