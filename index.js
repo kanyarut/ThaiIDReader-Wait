@@ -60,8 +60,8 @@ class ThaiIDReader {
                     console.log("Card inserted")
                     if (status.atr[0] == 0x3B && status.atr[1] == 0x67) { _SELECT = _SELECT2;}
                     
-                    
-                    this.reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
+                    console.log(this.reader.SCARD_SHARE_SHARED)
+                    this.reader.connect({ share_mode : this.reader.SCARD_SHARE_SHARED }, function(err, protocol) {
                         if (err) {
                             console.log("Connect error")
                             console.log(err);
