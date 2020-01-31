@@ -70,7 +70,7 @@ class ThaiIDReader {
                             console.log(err);
                         } else {
                             console.log('Protocol(', reader.name, '):', protocol);
-                            await this.sendCommand(_INIT_SELECT);
+                            this.sendCommand(_INIT_SELECT);
                             //this.readData(true);
                         }
                     });
