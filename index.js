@@ -63,11 +63,13 @@ class ThaiIDReader {
                     
                     this.reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
                         if (err) {
+                            console.log("Connect error")
                             console.log(err);
                         } else {
                             console.log('Protocol(', this.reader.name, '):', protocol);
                             reader.transmit(new Buffer([0x00, 0xB0, 0x00, 0x00, 0x20]), 40, protocol, function(err, data) {
                                 if (err) {
+                                    console.log("Transmit error")
                                     console.log(err);
                                 } else {
                                     console.log('Data received', data);
