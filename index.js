@@ -52,6 +52,7 @@ class ThaiIDReader {
             console.log('Status(', this.name, '):', status);
             /* check what has changed */
             var changes = this.state ^ status.state;
+            console.log(this)
             if (changes) {
                 if ((changes & this.SCARD_STATE_EMPTY) && (status.state & this.SCARD_STATE_EMPTY)) {
                     console.log("card removed");/* card removed */
@@ -64,12 +65,12 @@ class ThaiIDReader {
                     });
                 } else if ((changes & this.SCARD_STATE_PRESENT) && (status.state & this.SCARD_STATE_PRESENT)) {
                     console.log("card inserted");/* card inserted */
-                    reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
+                    reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, (err, protocol) => {
                         if (err) {
                             console.log(err);
                         } else {
                             console.log('Protocol(', reader.name, '):', protocol);
-                            this.onCardInsert();
+                            //this.onCardInsert();
                         }
                     });
                 }
