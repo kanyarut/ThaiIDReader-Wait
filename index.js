@@ -44,6 +44,7 @@ class ThaiIDReader {
         
         this.pcsc.on('reader', (reader)=>{ 
             console.log('onReader')
+            console.log(reader)
             if(!this.reader) {
                 clearTimeout(openTimeout); 
                 this.reader = reader;
