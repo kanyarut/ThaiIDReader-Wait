@@ -43,6 +43,7 @@ class ThaiIDReader {
         },10000);
         
         this.pcsc.on('reader', (reader)=>{ 
+            console.log('onReader')
             clearTimeout(openTimeout); 
             this.reader = reader;
             this.onReader(); 
