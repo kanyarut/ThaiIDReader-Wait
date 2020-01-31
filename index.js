@@ -59,7 +59,10 @@ class ThaiIDReader {
                     // detect corrupt card and change select apdu
                     console.log("Card inserted")
                     if (status.atr[0] == 0x3B && status.atr[1] == 0x67) { _SELECT = _SELECT2;}
-                    this.onCardInsert();
+                    
+                    setTimeout(()=>{ 
+                        this.onCardInsert(); 
+                    },3000);
                 }
             }
         });
