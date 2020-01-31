@@ -48,13 +48,12 @@ class ThaiIDReader {
 		
     onReader(reader){
         this.reader = reader;
-        reader.on('status', function(status) {
-            console.log('Status(', this.name, '):', status);
+        reader.on('status', (status) => {
+            console.log('Status(', reader.name, '):', status);
             /* check what has changed */
-            var changes = this.state ^ status.state;
-            console.log(this)
+            var changes = reader.state ^ status.state;
             if (changes) {
-                if ((changes & this.SCARD_STATE_EMPTY) && (status.state & this.SCARD_STATE_EMPTY)) {
+                if ((changes & reader.SCARD_STATE_EMPTY) && (status.state & reader.SCARD_STATE_EMPTY)) {
                     console.log("card removed");/* card removed */
                     reader.disconnect(reader.SCARD_LEAVE_CARD, function(err) {
                         if (err) {
@@ -63,14 +62,15 @@ class ThaiIDReader {
                             console.log('Disconnected');
                         }
                     });
-                } else if ((changes & this.SCARD_STATE_PRESENT) && (status.state & this.SCARD_STATE_PRESENT)) {
+                } else if ((changes & reader.SCARD_STATE_PRESENT) && (status.state & reader.SCARD_STATE_PRESENT)) {
                     console.log("card inserted");/* card inserted */
-                    reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, (err, protocol) => {
+                    reader.connect({ share_mode : reader.SCARD_SHARE_SHARED }, (err, protocol) => {
+                        this.protocol = protocol;
                         if (err) {
                             console.log(err);
                         } else {
                             console.log('Protocol(', reader.name, '):', protocol);
-                            //this.onCardInsert();
+                            this.readData(true);
                         }
                     });
                 }
