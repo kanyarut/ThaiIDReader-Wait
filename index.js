@@ -60,9 +60,23 @@ class ThaiIDReader {
                     console.log("Card inserted")
                     if (status.atr[0] == 0x3B && status.atr[1] == 0x67) { _SELECT = _SELECT2;}
                     
-                    setTimeout(()=>{ 
-                        this.onCardInsert(); 
-                    },3000);
+                    
+                    this.reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log('Protocol(', this.reader.name, '):', protocol);
+                            reader.transmit(new Buffer([0x00, 0xB0, 0x00, 0x00, 0x20]), 40, protocol, function(err, data) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log('Data received', data);
+                                    this.reader.close();
+                                    this.pcsc.close();
+                                }
+                            });
+                        }
+                    });
                 }
             }
         });
@@ -83,22 +97,6 @@ class ThaiIDReader {
             }
         })
         */
-        this.reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log('Protocol(', this.reader.name, '):', protocol);
-                reader.transmit(new Buffer([0x00, 0xB0, 0x00, 0x00, 0x20]), 40, protocol, function(err, data) {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        console.log('Data received', data);
-                        this.reader.close();
-                        this.pcsc.close();
-                    }
-                });
-            }
-        });
     }
 
      async readData ( init ) {
