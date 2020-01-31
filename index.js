@@ -47,7 +47,6 @@ class ThaiIDReader {
     }
 		
     onReader(reader){
-        console.log('Status(', this.name, '):', status);
         reader.on('status', function(status) {
             console.log('Status(', this.name, '):', status);
             /* check what has changed */
