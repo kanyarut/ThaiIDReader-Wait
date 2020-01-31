@@ -45,15 +45,21 @@ class ThaiIDReader {
         this.pcsc.on('reader', (reader)=>{ clearTimeout(openTimeout); this.onReader(reader); })
         this.pcsc.on('error', (err)=>{clearTimeout(openTimeout); this.onPcscError(err)})
     }
-		
+	
     onReader(reader){
-        this.reader = reader;
-        reader.on('status', (status) => {
-            console.log('Status(', reader.name, '):', status);
+
+        console.log('New reader detected', reader.name);
+
+        reader.on('error', function(err) {
+            console.log('Error(', this.name, '):', err.message);
+        });
+
+        reader.on('status', function(status) {
+            console.log('Status(', this.name, '):', status);
             /* check what has changed */
-            var changes = reader.state ^ status.state;
+            var changes = this.state ^ status.state;
             if (changes) {
-                if ((changes & reader.SCARD_STATE_EMPTY) && (status.state & reader.SCARD_STATE_EMPTY)) {
+                if ((changes & this.SCARD_STATE_EMPTY) && (status.state & this.SCARD_STATE_EMPTY)) {
                     console.log("card removed");/* card removed */
                     reader.disconnect(reader.SCARD_LEAVE_CARD, function(err) {
                         if (err) {
@@ -62,21 +68,31 @@ class ThaiIDReader {
                             console.log('Disconnected');
                         }
                     });
-                } else if ((changes & reader.SCARD_STATE_PRESENT) && (status.state & reader.SCARD_STATE_PRESENT)) {
+                } else if ((changes & this.SCARD_STATE_PRESENT) && (status.state & this.SCARD_STATE_PRESENT)) {
                     console.log("card inserted");/* card inserted */
-                    reader.connect({ share_mode : reader.SCARD_SHARE_SHARED }, (err, protocol) => {
-                        this.protocol = protocol;
+                    reader.connect({ share_mode : this.SCARD_SHARE_SHARED }, function(err, protocol) {
                         if (err) {
                             console.log(err);
                         } else {
                             console.log('Protocol(', reader.name, '):', protocol);
-                            this.sendCommand(_INIT_SELECT);
-                            //this.readData(true);
+                            reader.transmit(new Buffer([0x00, 0xB0, 0x00, 0x00, 0x20]), 40, protocol, function(err, data) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log('Data received', data);
+                                }
+                            });
                         }
                     });
                 }
             }
         });
+
+        reader.on('end', function() {
+            console.log('Reader',  this.name, 'removed');
+        });
+
+
         /*
         this.reader = reader;
         this.reader.on('status', (status) => {
