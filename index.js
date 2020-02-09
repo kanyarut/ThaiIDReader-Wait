@@ -25,6 +25,7 @@ class ThaiIDReader {
 
 	constructor() {	
 		this.read = this.read.bind(this)
+		this.close = this.close.bind(this)
 	    this.onReader = this.onReader.bind(this)
 	    this.readData = this.readData.bind(this)
 	    this.sendCommand = this.sendCommand.bind(this)
@@ -40,7 +41,7 @@ class ThaiIDReader {
 
         let openTimeout = setTimeout(()=>{ 
             this.onPcscError("No Reader Found"); 
-        },10000);
+        },30000);
         
         this.pcsc.on('reader', (reader)=>{ 
             console.log('onReader')
@@ -66,7 +67,10 @@ class ThaiIDReader {
                     // detect corrupt card and change select apdu
                     console.log("Card inserted")
                     if (status.atr[0] == 0x3B && status.atr[1] == 0x67) { _SELECT = _SELECT2;}
-                    this.onCardInsert();
+                    
+                    setTimeout(()=>{
+                        this.onCardInsert();
+                    },1000);
                 }
             }
         });
@@ -75,7 +79,7 @@ class ThaiIDReader {
     onCardInsert() {
         console.log("onCardInsert")
         this.reader.connect({share_mode: this.reader.SCARD_SHARE_SHARED},(err, protocol) => {
-            if (err) {
+            if (err || !protocol) {
                 console.log(err)
                 setTimeout(()=>{
                     this.onCardInsert();
@@ -94,14 +98,19 @@ class ThaiIDReader {
             if(init)await this.sendCommand(_INIT_SELECT);
             result.cid = await this.sendCommand(_CID, true);
             result.fullname = await this.sendCommand(_THFULLNAME, true);
+            result.enfullname = await this.sendCommand(_ENFULLNAME, true);
             result.dob = await this.sendCommand(_BIRTH, true);
             result.gender = await this.sendCommand(_GENDER, true);
             result.address = await this.sendCommand(_ADDRESS, true);
         } catch(e) {
             this.errorcb(e)
         }
-        this.readerExit();
         this.cb( result );
+        this.reader.disconnect(this.reader.SCARD_UNPOWER_CARD,(err)=>{
+            console.log("disconnect")
+            console.log(err)
+            this.close();
+        })
     }
 
     async sendCommand (command, select) {
@@ -149,6 +158,11 @@ class ThaiIDReader {
 
     onPcscError(err){
         this.errorcb(err)
+        this.pcscExit();
+    }
+
+    close() {
+        this.readerExit();
         this.pcscExit();
     }
 
